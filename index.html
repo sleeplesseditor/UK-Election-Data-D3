@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>UK General Election Data</title>
+        <link rel="stylesheet" type="text/css" href="css/style.css">
+    </head>
+    <body>
+    <header></header>
+        
+        <!--Upload Button-->
+        <p>Choose and Upload General Election Results CSV file</p>
+        <input type="file" id="uploader" accept=".csv"/>
+        
+        <!--Table Inserted Below-->
+        <table id="table">
+
+        </table>
+        
+        <!--Pie Chart Inserted Below-->
+        <div id ="chart">
+        
+        </div>
+        
+        <!--Bar Graph Inserted Below-->
+        <div id="graph">
+            <svg class="graph"></svg>
+        </div>
+                
+    </body>
+   
+    <!--Script Links-->
+    <!--Load in D3-->
+    <script src="http://d3js.org/d3.v3.js"></script>
+    <!--Main Custom JavaScript/D3 Files/Scripts-->
+    <script src="js/main.js"></script>
+    <script>
+        upload_button("uploader", load_dataset);
+    </script>
+</html>
