@@ -5,6 +5,7 @@ var dz;
 function load_dataset(csv) {
   var data = d3.csv.parse(csv)
   create_table(data);
+  create_chart(data)
 }
 
 // Creates Table with Column Headers, Types, and Data
@@ -32,112 +33,55 @@ function create_table(data) {
         .text(function(d) { return d; });
 }
 
-// Currently Incomplete Function that Creates Bar Graph with Axis, Labels, and Data
-function create_graph(data){
-    var width = 960,
-        height = 500;
-
-    var y = d3.scale.linear()
-        .range([height, 0]);
-
-    var chart = d3.select(".chart")
-        .attr("width", width)
-        .attr("height", height);
-
-    d3.tsv("data.tsv", type, function(error, data) {
-      y.domain([0, d3.max(data, function(d) { return d.value; })]);
-
-      var barWidth = width / data.length;
-
-      var bar = chart.selectAll("g")
-          .data(data)
-        .enter().append("g")
-          .attr("transform", function(d, i) { return "translate(" + i * barWidth + ",0)"; });
-
-      bar.append("rect")
-          .attr("y", function(d) { return y(d.value); })
-          .attr("height", function(d) { return height - y(d.value); })
-          .attr("width", barWidth - 1);
-
-      bar.append("text")
-          .attr("x", barWidth / 2)
-          .attr("y", function(d) { return y(d.value) + 3; })
-          .attr("dy", ".75em")
-          .text(function(d) { return d.value; });
-    });
-
-    function type(d) {
-      d.value = +d.value; // coerce to number
-      return d;
-    }
-}
-
 // Currently Incomplete Function that Creates Pie Chart with Key and Data
 function create_chart(data){
-      var width = 360;
-      var height = 360;
-      var radius = Math.min(width, height) / 2;
-      var donutWidth = 75;
-      var legendRectSize = 18;
-      var legendSpacing = 4;
-      var color = d3.scale.category20b();
-      var svg = d3.select('#chart')
-        .append('svg')
-        .attr('width', width)
-        .attr('height', height)
-        .append('g')
-        .attr('transform', 'translate(' + (width / 2) +
-          ',' + (height / 2) + ')');
+  var width = 960,
+  height = 500,
+  radius = Math.min(width, height) / 2;
 
-      var arc = d3.svg.arc()
-        .innerRadius(radius - donutWidth)
-        .outerRadius(radius);
+  var color = d3.scale.ordinal()
+    .range(["#0087DC", "#DC241f", "#FDBB30", "#D46A4C", "#FFFF00", "#d0743c", "#ff8c00"]);
 
-      var pie = d3.layout.pie()
-        .value(function(d) {
-          return d.count;
+  var arc = d3.svg.arc()
+    .outerRadius(radius - 10)
+    .innerRadius(0);
+
+  var labelArc = d3.svg.arc()
+    .outerRadius(radius - 40)
+    .innerRadius(radius - 40);
+
+  var pie = d3.layout.pie()
+    .sort(null)
+    .value(function(d) { return d['Percentage of Vote']; });
+
+  var svg = d3.select("body").append("svg")
+    .attr("width", width)
+    .attr("height", height)
+    .append("g")
+    .attr("transform", "translate(" + width / 2 + "," + height / 2 + ")");
+
+    var g = svg.selectAll(".arc")
+      .data(pie(data))
+      .enter().append("g")
+      .attr("class", "arc");
+
+    g.append("path")
+      .attr("d", arc)
+        // .attr("fill", function(d) { return color(d['Percentage of Vote']); })
+        .attr("fill", function(d) {
+          return color(d.data['Political Party']);
         })
-        .sort(null);
 
-      d3.csv(url, function(error, dataset) { // NEW
-        dataset.forEach(function(d) { // NEW
-          d.count = +d.count; // NEW
-        }); // NEW
-        var path = svg.selectAll('path')
-          .data(pie(dataset))
-          .enter()
-          .append('path')
-          .attr('d', arc)
-          .attr('fill', function(d, i) {
-            return color(d.data.label);
-          });
+    g.append("text")
+        .attr("transform", function(d) { return "translate(" + labelArc.centroid(d) + ")"; })
+        .attr("dy", ".35em")
+        .text(function(d) { return d.data['Political Party']; });
+}
 
-        var legend = svg.selectAll('.legend')
-          .data(color.domain())
-          .enter()
-          .append('g')
-          .attr('class', 'legend')
-          .attr('transform', function(d, i) {
-            var height = legendRectSize + legendSpacing;
-            var offset = height * color.domain().length / 2;
-            var horz = -2 * legendRectSize;
-            var vert = i * height - offset;
-            return 'translate(' + horz + ',' + vert + ')';
-          });
-        legend.append('rect')
-          .attr('width', legendRectSize)
-          .attr('height', legendRectSize)
-          .style('fill', color)
-          .style('stroke', color);
-
-        legend.append('text')
-          .attr('x', legendRectSize + legendSpacing)
-          .attr('y', legendRectSize - legendSpacing)
-          .text(function(d) {
-            return d;
-          });
-      });
-    }    
+function type(d) {
+  d['Percentage of Vote'] = +d['Percentage of Vote'];
+    return d;
+}
 
 // Upload Button Functionality
 function upload_button(el, callback) {
