@@ -33,22 +33,23 @@ function create_table(data) {
         .text(function(d) { return d; });
 }
 
-// Currently Incomplete Function that Creates Pie Chart with Key and Data
 function create_chart(data){
   var width = 960,
   height = 500,
   radius = Math.min(width, height) / 2;
 
+  console.log('D', data)
+
   var color = d3.scale.ordinal()
-    .range(["#0087DC", "#DC241f", "#FDBB30", "#D46A4C", "#FFFF00", "#d0743c", "#ff8c00"]);
+    .range(["#0087DC", "#DC241f", "#FDBB30", "#D46A4C", "#FFFF00", "#326760", "#008142", "##528D6B", "#CCC"]);
 
   var arc = d3.svg.arc()
-    .outerRadius(radius - 10)
+    .outerRadius(radius - 80)
     .innerRadius(0);
 
   var labelArc = d3.svg.arc()
-    .outerRadius(radius - 40)
-    .innerRadius(radius - 40);
+    .outerRadius(0)
+    .innerRadius(radius + 200);
 
   var pie = d3.layout.pie()
     .sort(null)
@@ -58,7 +59,7 @@ function create_chart(data){
     .attr("width", width)
     .attr("height", height)
     .append("g")
-    .attr("transform", "translate(" + width / 2 + "," + height / 2 + ")");
+    .attr("transform", "translate(" + width / 2 + "," + height / 1.95 + ")");
 
     var g = svg.selectAll(".arc")
       .data(pie(data))
@@ -67,15 +68,41 @@ function create_chart(data){
 
     g.append("path")
       .attr("d", arc)
-        // .attr("fill", function(d) { return color(d['Percentage of Vote']); })
+      .attr('stroke', 'black')
         .attr("fill", function(d) {
           return color(d.data['Political Party']);
         })
 
-    g.append("text")
-        .attr("transform", function(d) { return "translate(" + labelArc.centroid(d) + ")"; })
-        .attr("dy", ".35em")
-        .text(function(d) { return d.data['Political Party']; });
+    var labelHeight = 18;
+
+    console.log(pie(data)[0])
+
+    var legend = svg
+        .append('g')
+        .attr('transform', `translate(${radius - 30}, -130)`);
+
+    legend
+        .selectAll(null)
+        .data(pie(data))
+        .enter()
+        .append('rect')
+        .attr('y', (d, i) => labelHeight * i * 1.8)
+        .attr('width', labelHeight)
+        .attr('height', labelHeight)
+        .attr('fill', d => color(d.data['Political Party']))
+        .attr('stroke', 'grey')
+        .style('stroke-width', '1px');
+
+    legend
+        .selectAll(null)
+        .data(pie(data))
+        .enter()
+        .append('text')
+        .text(d => d.data['Political Party'])
+        .attr('x', labelHeight * 1.2)
+        .attr('y', (d, i) => labelHeight * i * 1.8 + labelHeight)
+        .style('font-family', 'sans-serif')
+        .style('font-size', `${labelHeight}px`);
 }
 
 function type(d) {
