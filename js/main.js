@@ -47,10 +47,6 @@ function create_chart(data){
     .outerRadius(radius - 80)
     .innerRadius(0);
 
-  var labelArc = d3.svg.arc()
-    .outerRadius(0)
-    .innerRadius(radius + 200);
-
   var pie = d3.layout.pie()
     .sort(null)
     .value(function(d) { return d['Percentage of Vote']; });
